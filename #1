@@ -1,0 +1,108 @@
+using System;
+using System.Collections.Generic;
+class KilkistException : Exception    // Виняток для перевищення кількості пасажирів
+{
+    public KilkistException(string message) : base(message) { }
+}
+class SmugaRozgonuException : Exception        // Виняток для некоректної довжини смуги розгону
+{
+    public SmugaRozgonuException(string message) : base(message) { }
+}
+class Pasazhyr         // Клас Пасажир
+{
+    public string PIB { get; set; }
+    public int NomerMistsya { get; set; }
+    public Pasazhyr(string pib, int nomer)
+    {
+        PIB = pib;
+        NomerMistsya = nomer;
+    }
+}
+abstract class LitalnyiAparat       // Базовий клас Літальний апарат
+{
+    public string Nazva { get; set; }
+    public int MaksPasazhyriv { get; set; }
+    protected List<Pasazhyr> pasazhiry = new();
+    public void DodatyPasazhyra(Pasazhyr p)
+    {
+        if (pasazhiry.Count >= MaksPasazhyriv)
+            throw new KilkistException("Maximum number of passengers exceeded!");
+        pasazhiry.Add(p);
+        Console.WriteLine($"Passenger {p.PIB} added.");
+    }
+    public abstract void Zlit();
+}
+class Litak : LitalnyiAparat        // Клас Літак
+{
+    public double DovzhynaSmugy { get; set; }
+
+    public Litak(string nazva, int maks, double smuga)
+    {
+        if (smuga <= 0)
+            throw new SmugaRozgonuException("Cannot create plane - invalid runway length.");
+        Nazva = nazva;
+        MaksPasazhyriv = maks;
+        DovzhynaSmugy = smuga;
+    }
+    public override void Zlit()
+    {
+        Console.WriteLine($"{Nazva} is taking off from a runway of {DovzhynaSmugy} meters.");
+    }
+}
+class Helikopter : LitalnyiAparat     // Клас Гелікоптер
+{
+    public Helikopter(string nazva, int maks)
+    {
+        Nazva = nazva;
+        MaksPasazhyriv = maks;
+    }
+    public override void Zlit()
+    {
+        Console.WriteLine($"{Nazva} is lifting off vertically.");
+    }
+}
+class Program
+{
+    static void Main()
+    {
+        Litak litak = null;
+        try        // Спроба створити літак з некоректною довжиною смуги
+        {
+            litak = new Litak("Boeing 737", 2, -100);
+        }
+        catch (SmugaRozgonuException ex)
+        {
+            Console.WriteLine(ex.Message);
+            Console.WriteLine("Retrying with valid runway length...");
+            litak = new Litak("Boeing 737", 2, 1500);
+        }
+        try        // Додавання пасажирів
+        {
+            litak.DodatyPasazhyra(new Pasazhyr("John Smith", 1));
+            litak.DodatyPasazhyra(new Pasazhyr("Alice Brown", 2));
+            litak.DodatyPasazhyra(new Pasazhyr("Extra Guy", 3)); // перевищення
+        }
+        catch (KilkistException ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+        }
+        try        // Зліт літака
+        {
+            litak.Zlit();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Takeoff error: {ex.Message}");
+        }
+        var heli = new Helikopter("Airbus H160", 1);        // Робота з гелікоптером
+        try
+        {
+            heli.DodatyPasazhyra(new Pasazhyr("Pilot Anna", 1));
+            heli.Zlit();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Helicopter error: {ex.Message}");
+        }
+    }
+}
