@@ -4,7 +4,7 @@ class KilkistException : Exception    // Виняток для перевище�
 {
     public KilkistException(string message) : base(message) { }
 }
-class SmugaRozgonuException : Exception        // Виняток для некоректної довжини смуги розгону
+class SmugaRozgonuException : Exception        // Виняток для некоректної довжини злітної смуги
 {
     public SmugaRozgonuException(string message) : base(message) { }
 }
@@ -94,7 +94,7 @@ class Program
         {
             Console.WriteLine($"Takeoff error: {ex.Message}");
         }
-        var heli = new Helikopter("Airbus H160", 1);        // Робота з гелікоптером
+        var heli = new Helikopter("Airbus H160", 1);        // Створення гелікоптера
         try
         {
             heli.DodatyPasazhyra(new Pasazhyr("Pilot Anna", 1));
